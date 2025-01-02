@@ -1,0 +1,48 @@
+.background {
+  background-color: #282c34;
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.header {
+  font-size: 2rem;
+}
+
+.content {
+  font-size: 1.5rem;
+}
+
+/* Input styling */
+input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin: 0.5rem;
+}
+
+/* Button styling */
+button {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  margin: 0.5rem;
+  background-color: #181b1b;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+/* Button hover effect */
+button:hover {
+  background-color: #282c34;
+}
+
+/* Select input styling */
+select {
+  padding: 0.5rem;
+  font-size: 1rem;
+  margin: 0.5rem;
+}
