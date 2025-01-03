@@ -2,10 +2,11 @@
   background-color: #282c34;
   color: white;
   height: 100vh;
+  min-height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .header {
@@ -45,4 +46,14 @@ select {
   padding: 0.5rem;
   font-size: 1rem;
   margin: 0.5rem;
+}
+
+.link {
+  font-size: 26px;
+  color: #e3e3e3;
+  margin: 0 12px;
+}
+
+.link:hover {
+  color:#bcbcbc;
 }
