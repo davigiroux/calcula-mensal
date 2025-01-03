@@ -81,7 +81,11 @@ export default function App() {
               |{" "}
               <Link className="link" to="/criar">
                 Criar
-              </Link>
+              </Link>{" "}
+              |{" "}
+              <a className="link" onClick={() => supabase.auth.signOut()}>
+                Sair
+              </a>
             </div>
           </header>
           <main className="content">
