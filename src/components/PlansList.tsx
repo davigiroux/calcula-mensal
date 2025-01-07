@@ -7,6 +7,23 @@ import {
 import { Tables } from "../utils/supabase.types";
 import supabase from "../utils/supabase";
 import { diasDaSemana } from "../utils/dateHelpers";
+import {
+  Container,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Grid2,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+} from "@mui/material";
 
 type Plan = Tables<"plano"> & { item_plano: Tables<"item_plano">[] };
 type Props = {
@@ -17,6 +34,8 @@ type Props = {
 export function PlansList({ mes, ano }: Props) {
   const [plans, setPlans] = useState<Plan[]>([]);
   const [error, setError] = useState<PostgrestError | null>(null);
+  const [open, setOpen] = useState(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchPlans() {
@@ -58,51 +77,104 @@ export function PlansList({ mes, ano }: Props) {
     });
   };
 
-  const getLongMonth = (date: Date) => {
-    const monthName = new Intl.DateTimeFormat("pt-BR", { month: "long" })
-      .format;
-    return monthName(date);
+  const handleDelete = async () => {
+    if (selectedPlanId === null) return;
+
+    const { error } = await supabase
+      .from("plano")
+      .delete()
+      .eq("id", selectedPlanId);
+    if (error) {
+      setError(error);
+      return;
+    }
+    setPlans(plans.filter((plan) => plan.id !== selectedPlanId));
+    setOpen(false);
   };
 
-  if (error) return <>{error.message}</>;
+  const handleClickOpen = (id: number) => {
+    setSelectedPlanId(id);
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+    setSelectedPlanId(null);
+  };
+
+  const renderItemText = (item: Tables<"item_plano">) => {
+    return `${
+      diasDaSemana[item.daysOfTheWeek]
+    }: ${calculateNumberOfWeekDaysInMonth(
+      ano,
+      mes,
+      item.daysOfTheWeek
+    )} x ${item.amount.toLocaleString("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    })}`;
+  };
+
+  if (error) return <Typography color="error">{error.message}</Typography>;
+
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "flex-start",
-        flexDirection: "column",
-      }}
-    >
-      {plans.map((plan) => {
-        return (
-          <div key={plan.id}>
-            <h2 style={{ textDecoration: "underline" }}>{plan.name}</h2>
-            <p>
-              O total do plano será de:{" "}
-              <strong>{calculateTotalAmount(plan)}</strong>
-              <ul>
-                {plan.item_plano.map((item) => (
-                  <li>
-                    O valor de{" "}
-                    {item.amount.toLocaleString("pt-Br", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}{" "}
-                    será cobrado{" "}
-                    {calculateNumberOfWeekDaysInMonth(
-                      ano,
-                      mes,
-                      item.daysOfTheWeek
-                    )}{" "}
-                    vezes(toda {diasDaSemana[item.daysOfTheWeek]}) no mês de{" "}
-                    {getLongMonth(new Date(ano, mes, 1))}
-                  </li>
-                ))}
-              </ul>
-            </p>
-          </div>
-        );
-      })}
-    </div>
+    <Container>
+      <Grid2 container spacing={2}>
+        {plans.map((plan) => (
+          <Grid2 size={{ xs: 12, md: 6 }} key={plan.id}>
+            <Card>
+              <CardContent>
+                <Typography
+                  variant="h5"
+                  fontWeight={500}
+                  color="primary"
+                  gutterBottom
+                >
+                  {plan.name}
+                </Typography>
+                <Typography variant="body1" fontSize={18} color="primary">
+                  <strong>{calculateTotalAmount(plan)}</strong>
+                </Typography>
+                <List>
+                  {plan.item_plano.map((item) => (
+                    <ListItem
+                      disableGutters
+                      key={item.id}
+                      sx={{ padding: "1px 5px" }}
+                    >
+                      <ListItemText
+                        sx={{ margin: 0 }}
+                        primary={<>- {renderItemText(item)}</>}
+                      />
+                    </ListItem>
+                  ))}
+                </List>
+              </CardContent>
+              <CardActions style={{ justifyContent: "flex-end" }}>
+                <Button color="error" onClick={() => handleClickOpen(plan.id)}>
+                  Apagar
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid2>
+        ))}
+      </Grid2>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Confirmar Exclusão</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Tem certeza que deseja excluir este plano?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={handleDelete} color="error">
+            Apagar
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Container>
   );
 }

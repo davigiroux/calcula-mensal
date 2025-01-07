@@ -3,10 +3,14 @@ import { Session } from "@supabase/supabase-js";
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import supabase from "./utils/supabase";
-import "./App.css";
-import { BrowserRouter, Link, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes } from "react-router";
 import { CreatePlan } from "./pages/CreatePlan";
 import { Plans } from "./pages/Plans";
+import "@fontsource/roboto/300.css";
+import "@fontsource/roboto/400.css";
+import "@fontsource/roboto/500.css";
+import "@fontsource/roboto/700.css";
+import { Layout } from "./Layout";
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -65,36 +69,12 @@ export default function App() {
   } else {
     return (
       <BrowserRouter>
-        <div className="background">
-          <header className="header">
-            <h1 style={{ marginBottom: "20px" }}>Planos Mensais</h1>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginBottom: "42px",
-              }}
-            >
-              <Link className="link" to="/">
-                Ver Planos
-              </Link>{" "}
-              |{" "}
-              <Link className="link" to="/criar">
-                Criar
-              </Link>{" "}
-              |{" "}
-              <a className="link" onClick={() => supabase.auth.signOut()}>
-                Sair
-              </a>
-            </div>
-          </header>
-          <main className="content">
-            <Routes>
-              <Route element={<Plans />} index />
-              <Route element={<CreatePlan />} path="criar" />
-            </Routes>
-          </main>
-        </div>
+        <Layout>
+          <Routes>
+            <Route element={<Plans />} index />
+            <Route element={<CreatePlan />} path="criar" />
+          </Routes>
+        </Layout>
       </BrowserRouter>
     );
   }

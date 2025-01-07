@@ -5,10 +5,23 @@ import {
   UseFormRegister,
 } from "react-hook-form";
 import supabase from "../utils/supabase";
-import { Fragment } from "react/jsx-runtime";
 import { useState } from "react";
-import { Banner } from "./Banner";
 import { diasDaSemana } from "../utils/dateHelpers";
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Divider,
+  FormControl,
+  Grid2,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { CheckCircleOutline } from "@mui/icons-material";
 
 type FormState = {
   items: PlanItem[];
@@ -37,51 +50,65 @@ type PlanItemInputProps = {
 const PlanItemInputs = ({ control, register }: PlanItemInputProps) => {
   const { fields, append, remove } = useFieldArray({ control, name: "items" });
 
-  console.log({ fields });
-
   return (
     <>
       {fields.map((field, index) => (
-        <Fragment key={field.id}>
-          <label htmlFor={`items.${index}.valor`}>
-            Valor
-            <input {...register(`items.${index}.valor`)} />
-          </label>
-          <br />
-          <label htmlFor={`items.${index}.diaDaSemana`}>
-            Dia da semana
-            <select {...register(`items.${index}.diaDaSemana`)}>
-              {diasDaSemana.map((dia, idx) => (
-                <option value={idx}>{dia}</option>
-              ))}
-            </select>
-          </label>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              margin: 0,
-              padding: 0,
-            }}
+        <Box key={field.id} borderRadius={1} padding={2}>
+          <Typography variant="h6">#{index + 1}</Typography>
+          <Grid2
+            container
+            flexDirection="row"
+            alignContent="center"
+            alignItems="center"
+            spacing={2}
+            justifyContent="space-between"
+            marginTop={2}
           >
-            <button
-              type="button"
-              onClick={() => remove(index)}
-              style={{ background: "#e34a4a" }}
-            >
-              Remover
-            </button>
-          </div>
-          <hr />
-        </Fragment>
+            <Grid2 size={{ md: 4, xs: 12 }}>
+              <TextField
+                sx={{ margin: 0 }}
+                label="Valor"
+                {...register(`items.${index}.valor`, { valueAsNumber: true })}
+                type="number"
+                margin="normal"
+              />
+            </Grid2>
+            <Grid2 size={{ md: 4, xs: 12 }}>
+              <FormControl fullWidth>
+                <InputLabel id="diaDaSemana">Dia da semana</InputLabel>
+                <Select
+                  labelId="diaDaSemana"
+                  label="Dia da semana"
+                  {...register(`items.${index}.diaDaSemana`)}
+                >
+                  {diasDaSemana.map((dia, idx) => (
+                    <MenuItem key={idx} value={idx}>
+                      {dia}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Grid2>
+            <Grid2 size={{ md: 4, xs: 12 }}>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => remove(index)}
+              >
+                Remover
+              </Button>
+            </Grid2>
+          </Grid2>
+        </Box>
       ))}
-      <button
-        type="button"
-        style={{ width: "100%" }}
-        onClick={() => append({ valor: 0, diaDaSemana: new Date().getDay() })}
-      >
-        Adicionar item
-      </button>
+      <Box margin="15px">
+        <Button
+          variant="outlined"
+          onClick={() => append({ valor: 0, diaDaSemana: new Date().getDay() })}
+        >
+          Adicionar item
+        </Button>
+      </Box>
     </>
   );
 };
@@ -96,7 +123,7 @@ export const CreatePlanForm = () => {
   });
 
   return (
-    <>
+    <Container maxWidth="sm">
       <form
         onSubmit={handleSubmit(async (formData) => {
           const { error, data } = await supabase
@@ -138,29 +165,34 @@ export const CreatePlanForm = () => {
           setResultMessage("Plano criado com sucesso!");
         })}
       >
-        <label style={{ marginLeft: 10 }}>Nome do Plano</label> <br />
-        <input {...register("nome")} />
-        <br />
-        <h3>Items do serviço</h3>
+        <Typography variant="h6" gutterBottom>
+          Nome do Plano
+        </Typography>
+        <TextField {...register("nome")} fullWidth margin="normal" />
+        <Typography variant="h6" gutterBottom>
+          Items do serviço
+        </Typography>
         <PlanItemInputs control={control} register={register} />
-        <br />
         <div style={{ display: "flex", justifyContent: "flex-end" }}>
-          <button
+          <Button
             type="submit"
-            style={{
-              fontSize: "18px",
-              backgroundColor: "#2196f3",
-              marginTop: "64px",
-            }}
+            variant="contained"
+            color="primary"
+            style={{ marginTop: "16px" }}
           >
             Criar Plano
-          </button>
+          </Button>
         </div>
-        <br />
         {formStatus !== null && (
-          <Banner variant={formStatus}>{resultMessage}</Banner>
+          <Alert
+            icon={<CheckCircleOutline fontSize="inherit" />}
+            severity={formStatus}
+            style={{ marginTop: "16px" }}
+          >
+            {resultMessage}
+          </Alert>
         )}
       </form>
-    </>
+    </Container>
   );
 };
